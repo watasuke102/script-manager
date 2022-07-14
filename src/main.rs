@@ -1,48 +1,43 @@
-use std::{
-    io::Read,
-    process::{Command, Stdio},
-    sync::{Arc, Mutex},
-    thread::{self, JoinHandle},
+use crossterm::{
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+mod process;
+use process::{create_process, Process};
+mod terminal;
+use std::{error::Error, io};
+use terminal::draw_process_log;
+use tui::{backend::CrosstermBackend, Terminal};
 
-#[allow(dead_code)]
-#[derive(Debug)]
-struct Process {
-    name: Arc<String>,
-    filter: String,
-    output: Arc<Mutex<String>>,
-    thread: JoinHandle<()>,
-}
+fn main() -> Result<(), Box<dyn Error>> {
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
-fn main() {
-    let process = create_process(&String::from("script/1.sh"));
+    // main loop
+    let mut process_list = Vec::<Process>::new();
+    let mut focused_index = 0;
     loop {
-        println!("{:?}", process);
-        thread::sleep(std::time::Duration::from_millis(500));
-    }
-}
+        terminal.draw(|f| draw_process_log(f, &process_list, focused_index))?;
 
-fn create_process(name: &String) -> Process {
-    let output = Arc::new(Mutex::new(String::new()));
-    let name = Arc::new(name.clone());
-    Process {
-        name: name.clone(),
-        filter: String::new(),
-        output: output.clone(),
-        thread: thread::spawn(move || {
-            let output = output.clone();
-            let name = name.clone();
-            let mut child = Command::new("/usr/bin/bash")
-                .args([name.as_str()])
-                .stdout(Stdio::piped())
-                .spawn()
-                .unwrap();
-            let out = child.stdout.as_mut().unwrap();
-            let mut buf = [0u8; 1];
-            loop {
-                out.read(&mut buf).unwrap();
-                output.lock().unwrap().push(buf[0] as char);
+        if let Event::Key(key) = event::read()? {
+            match key.code {
+                KeyCode::Char('q') => break,
+                _ => (),
             }
-        }),
+        }
     }
+
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
+    terminal.show_cursor()?;
+
+    Ok(())
 }
