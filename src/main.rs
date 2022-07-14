@@ -23,10 +23,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         terminal.draw(|f| draw_process_log(f, &process_list, focused_index))?;
 
-        if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') => break,
-                _ => (),
+            if let Event::Key(key) = event::read()? {
+                match key.code {
+                    KeyCode::Char('q') => break,
+                    KeyCode::Char('a') => {
+                        process_list.push(create_process(&String::from("script/1.sh")))
+                    }
+                    KeyCode::Tab => focused_index += 1,
+                    _ => (),
             }
         }
     }
