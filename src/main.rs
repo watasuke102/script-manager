@@ -1,12 +1,12 @@
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 mod process;
 use process::{create_process, Process};
 mod terminal;
-use std::{error::Error, io};
+use std::{error::Error, io, time::Duration};
 use terminal::draw_process_log;
 use tui::{backend::CrosstermBackend, Terminal};
 
@@ -23,6 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         terminal.draw(|f| draw_process_log(f, &process_list, focused_index))?;
 
+        if poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char('q') => break,
@@ -31,6 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     KeyCode::Tab => focused_index += 1,
                     _ => (),
+                }
             }
         }
     }
