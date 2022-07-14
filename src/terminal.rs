@@ -13,6 +13,17 @@ pub fn draw_process_log<B: Backend>(
     process_list: &Vec<Process>,
     focused_index: usize,
 ) {
+    if process_list.len() == 0 {
+        let chunk = Layout::default()
+            .constraints([Constraint::Percentage(100)])
+            .split(f.size());
+        let block = Paragraph::new(Text::from(Spans::from(String::from(
+            "There are no process",
+        ))));
+        f.render_widget(block, chunk[0]);
+        return;
+    }
+
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
@@ -47,5 +58,6 @@ pub fn draw_process_log<B: Backend>(
         .block(Block::default().title("output").borders(Borders::ALL));
         f.render_widget(block, chunk[2]);
     }
+
     f.set_cursor(chunks[focused_index].x + 1, chunks[focused_index].y + 2);
 }
