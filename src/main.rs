@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // main loop
     let mut process_list = Vec::<Process>::new();
-    let mut focused_index = 0;
+    let mut focused_index: usize = 0;
     loop {
         terminal.draw(|f| draw_process_log(f, &process_list, focused_index))?;
 
@@ -30,7 +30,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                     KeyCode::Char('a') => {
                         process_list.push(create_process(&String::from("script/1.sh")))
                     }
-                    KeyCode::Tab => focused_index += 1,
+                    KeyCode::Tab => {
+                        focused_index = if focused_index == process_list.len() - 1 {
+                            0
+                        } else {
+                            focused_index + 1
+                        };
+                    }
+                    KeyCode::BackTab => {
+                        focused_index = if focused_index == 0 {
+                            process_list.len() - 1
+                        } else {
+                            focused_index - 1
+                        };
+                    }
                     _ => (),
                 }
             }

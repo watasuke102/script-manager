@@ -11,7 +11,7 @@ use crate::process::Process;
 pub fn draw_process_log<B: Backend>(
     f: &mut Frame<B>,
     process_list: &Vec<Process>,
-    focused_index: i32,
+    focused_index: usize,
 ) {
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
@@ -47,4 +47,5 @@ pub fn draw_process_log<B: Backend>(
         .block(Block::default().title("output").borders(Borders::ALL));
         f.render_widget(block, chunk[2]);
     }
+    f.set_cursor(chunks[focused_index].x + 1, chunks[focused_index].y + 2);
 }
