@@ -60,5 +60,8 @@ pub fn draw_process_log<B: Backend>(
         f.render_widget(block, chunk[2]);
     }
 
-    f.set_cursor(chunks[focused_index].x + 1, chunks[focused_index].y + 2);
+    f.set_cursor(
+        chunks[focused_index].x + (process_list[focused_index].filter.len() as u16) + 1,
+        chunks[focused_index].y + 2,
+    );
 }
