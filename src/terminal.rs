@@ -1,7 +1,7 @@
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout},
-    text::{Spans, Text},
+    text::{Span, Spans, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
     Frame,
 };
@@ -52,11 +52,15 @@ pub fn draw_process_log<B: Backend>(
             .block(Block::default().title("filter").borders(Borders::ALL));
         f.render_widget(block, chunk[1]);
         // output
-        let block = Paragraph::new(Text::from(Spans::from(
-            process.output.lock().unwrap().clone(),
-        )))
-        .wrap(Wrap { trim: true })
-        .block(Block::default().title("output").borders(Borders::ALL));
+        let output_lines = process.output.lock().unwrap().clone();
+        let output_lines: Vec<Spans> = output_lines
+            .lines()
+            .filter(|s| s.contains(&process.filter))
+            .map(|s| Spans::from(Span::raw(s)))
+            .collect();
+        let block = Paragraph::new(output_lines)
+            .wrap(Wrap { trim: true })
+            .block(Block::default().title("output").borders(Borders::ALL));
         f.render_widget(block, chunk[2]);
     }
 
