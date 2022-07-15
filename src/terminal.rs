@@ -58,8 +58,10 @@ pub fn draw_process_log<B: Backend>(
             .filter(|s| s.contains(&process.filter))
             .map(|s| Spans::from(Span::raw(s)))
             .collect();
+        let output_len = output_lines.len() as u16;
         let block = Paragraph::new(output_lines)
             .wrap(Wrap { trim: true })
+            .scroll((process.scroll_x, output_len - process.scroll_y))
             .block(Block::default().title("output").borders(Borders::ALL));
         f.render_widget(block, chunk[2]);
     }

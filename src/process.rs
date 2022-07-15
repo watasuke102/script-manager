@@ -10,6 +10,9 @@ use std::{
 pub struct Process {
     pub name: Arc<String>,
     pub filter: String,
+    pub scroll_x: u16,
+    /// describe scrolled row count **from bottom (latest output)**
+    pub scroll_y: u16,
     pub output: Arc<Mutex<String>>,
     thread: JoinHandle<()>,
 }
@@ -20,6 +23,8 @@ pub fn create_process(name: &String) -> Process {
     Process {
         name: name.clone(),
         filter: String::new(),
+        scroll_x: 0,
+        scroll_y: 0,
         output: output.clone(),
         thread: thread::spawn(move || {
             let output = output.clone();
