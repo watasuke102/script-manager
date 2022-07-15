@@ -30,6 +30,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     match key.code {
                         KeyCode::Char('q') => break,
                         KeyCode::Char('w') => break,
+                        KeyCode::Char('u') => {
+                            if process_list.len() != 0 {
+                                process_list[focused_index].filter.clear();
+                            }
+                        }
                         KeyCode::Char('a') => {
                             process_list.push(create_process(&String::from("script/seq.sh")))
                         }
