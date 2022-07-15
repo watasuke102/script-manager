@@ -1,5 +1,5 @@
 use crossterm::{
-    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -25,26 +25,46 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => break,
-                    KeyCode::Char('a') => {
+                // action
+                if key.modifiers.contains(KeyModifiers::CONTROL) {
+                    match key.code {
+                        KeyCode::Char('q') => break,
+                        KeyCode::Char('a') => {
                         process_list.push(create_process(&String::from("script/1.sh")))
+                        }
+                        _ => (),
                     }
-                    KeyCode::Tab => {
-                        focused_index = if focused_index == process_list.len() - 1 {
-                            0
-                        } else {
-                            focused_index + 1
-                        };
+                } else {
+                    // edit or move focus
+                    match key.code {
+                        // edit filter
+                        KeyCode::Char(c) => {
+                            if process_list.len() != 0 {
+                                process_list[focused_index].filter.push(c);
+                            }
+                        }
+                        KeyCode::Backspace => {
+                            if process_list.len() != 0 {
+                                process_list[focused_index].filter.pop();
+                            }
+                        }
+                        // change focus
+                        KeyCode::Tab => {
+                            focused_index = if focused_index == process_list.len() - 1 {
+                                0
+                            } else {
+                                focused_index + 1
+                            };
+                        }
+                        KeyCode::BackTab => {
+                            focused_index = if focused_index == 0 {
+                                process_list.len() - 1
+                            } else {
+                                focused_index - 1
+                            };
+                        }
+                        _ => (),
                     }
-                    KeyCode::BackTab => {
-                        focused_index = if focused_index == 0 {
-                            process_list.len() - 1
-                        } else {
-                            focused_index - 1
-                        };
-                    }
-                    _ => (),
                 }
             }
         }

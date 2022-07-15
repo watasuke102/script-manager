@@ -48,7 +48,8 @@ pub fn draw_process_log<B: Backend>(
         let block = Paragraph::new(Text::from(Spans::from(process.name.as_ref().clone())));
         f.render_widget(block, chunk[0]);
         // filter
-        let block = Block::default().title("filter").borders(Borders::ALL);
+        let block = Paragraph::new(Text::from(Spans::from(process.filter.clone())))
+            .block(Block::default().title("filter").borders(Borders::ALL));
         f.render_widget(block, chunk[1]);
         // output
         let block = Paragraph::new(Text::from(Spans::from(
