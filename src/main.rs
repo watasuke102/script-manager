@@ -29,6 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 if key.modifiers.contains(KeyModifiers::CONTROL) {
                     match key.code {
                         KeyCode::Char('q') => break,
+                        KeyCode::Char('w') => break,
                         KeyCode::Char('a') => {
                             process_list.push(create_process(&String::from("script/seq.sh")))
                         }
