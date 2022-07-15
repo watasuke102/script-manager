@@ -27,6 +27,7 @@ pub fn create_process(name: &String) -> Process {
             let mut child = Command::new("/usr/bin/bash")
                 .args([name.as_str()])
                 .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
                 .spawn()
                 .unwrap();
             let mut buf = [0u8; 1];
