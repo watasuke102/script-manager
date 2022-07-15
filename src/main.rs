@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     match key.code {
                         KeyCode::Char('q') => break,
                         KeyCode::Char('a') => {
-                        process_list.push(create_process(&String::from("script/1.sh")))
+                            process_list.push(create_process(&String::from("script/seq.sh")))
                         }
                         _ => (),
                     }

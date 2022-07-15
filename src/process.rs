@@ -29,11 +29,26 @@ pub fn create_process(name: &String) -> Process {
                 .stdout(Stdio::piped())
                 .spawn()
                 .unwrap();
-            let out = child.stdout.as_mut().unwrap();
             let mut buf = [0u8; 1];
+
             loop {
-                out.read(&mut buf).unwrap();
-                output.lock().unwrap().push(buf[0] as char);
+                match child.try_wait() {
+                    Ok(Some(stat)) => {
+                        output
+                            .lock()
+                            .unwrap()
+                            .push_str(&format!("\nExited ({stat})\n"));
+                        return;
+                    }
+                    Ok(None) => {
+                        child.stdout.as_mut().unwrap().read(&mut buf).unwrap();
+                        output.lock().unwrap().push(buf[0] as char);
+                    }
+                    Err(e) => output
+                        .lock()
+                        .unwrap()
+                        .push_str(&format!("\nError occured ({e})\n")),
+                }
             }
         }),
     }
