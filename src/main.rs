@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             KeyCode::Backspace => app.pop_current_filter(),
             // move focus
             KeyCode::Tab => app.focus_next(),
-            KeyCode::BackTab => app.focus_next(),
+            KeyCode::BackTab => app.focus_prev(),
             _ => (),
           }
         }
