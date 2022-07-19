@@ -22,17 +22,17 @@ impl App {
   }
   // edit filter
   pub fn push_current_filter(&mut self, c: char) {
-    if self.process_list.len() != 0 {
+    if self.process_exist() {
       self.process_list[self.focused_index].filter.push(c);
     }
   }
   pub fn pop_current_filter(&mut self) {
-    if self.process_list.len() != 0 {
+    if self.process_exist() {
       self.process_list[self.focused_index].filter.pop();
     }
   }
   pub fn clear_current_filter(&mut self) {
-    if self.process_list.len() != 0 {
+    if self.process_exist() {
       self.process_list[self.focused_index].filter.clear();
     }
   }
