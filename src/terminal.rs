@@ -6,14 +6,10 @@ use tui::{
     Frame,
 };
 
-use crate::process::Process;
+use crate::App;
 
-pub fn draw_process_log<B: Backend>(
-    f: &mut Frame<B>,
-    process_list: &Vec<Process>,
-    focused_index: usize,
-) {
-    if process_list.len() == 0 {
+pub fn draw_process_log<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+    if app.process_list.len() == 0 {
         let chunk = Layout::default()
             .constraints([Constraint::Percentage(100)])
             .split(f.size());
@@ -27,7 +23,8 @@ pub fn draw_process_log<B: Backend>(
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
-            vec![Constraint::Ratio(1, process_list.len() as u32); process_list.len()].as_ref(),
+            vec![Constraint::Ratio(1, app.process_list.len() as u32); app.process_list.len()]
+                .as_ref(),
         )
         .split(f.size());
 
@@ -42,7 +39,7 @@ pub fn draw_process_log<B: Backend>(
             .as_ref(),
         );
 
-    for (i, process) in process_list.into_iter().enumerate() {
+    for (i, process) in app.process_list.into_iter().enumerate() {
         let chunk = chunk_template.split(chunks[i]);
         // name
         let block = Paragraph::new(Text::from(Spans::from(process.name.as_ref().clone())));
@@ -67,7 +64,7 @@ pub fn draw_process_log<B: Backend>(
     }
 
     f.set_cursor(
-        chunks[focused_index].x + (process_list[focused_index].filter.len() as u16) + 1,
-        chunks[focused_index].y + 2,
+        chunks[app.focused_index].x + (app.process_list[app.focused_index].filter.len() as u16) + 1,
+        chunks[app.focused_index].y + 2,
     );
 }
