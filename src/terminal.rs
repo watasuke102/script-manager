@@ -38,7 +38,7 @@ pub fn draw_process_log<B: Backend>(f: &mut Frame<B>, app: &mut App) {
       .as_ref(),
     );
 
-  for (i, process) in app.process_list.into_iter().enumerate() {
+  for (i, process) in app.process_list.iter().enumerate() {
     let chunk = chunk_template.split(chunks[i]);
     // name
     let block = Paragraph::new(Text::from(Spans::from(process.name.as_ref().clone())));
