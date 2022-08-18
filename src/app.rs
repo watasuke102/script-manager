@@ -31,6 +31,33 @@ impl FileList {
       selected_index: 0,
     }
   }
+  pub fn next(&mut self) {
+    if let Some(names) = &self.names {
+      self.selected_index = if self.selected_index == names.len() - 1 {
+        0
+      } else {
+        self.selected_index + 1
+      };
+      self.state.select(Some(self.selected_index));
+    }
+  }
+  pub fn prev(&mut self) {
+    if let Some(names) = &self.names {
+      self.selected_index = if self.selected_index == 0 {
+        names.len() - 1
+      } else {
+        self.selected_index - 1
+      };
+      self.state.select(Some(self.selected_index));
+    }
+  }
+  pub fn selected_file_name(&self) -> Option<String> {
+    if let Some(names) = &self.names {
+      return Some(names[self.selected_index].clone());
+    } else {
+      None
+    }
+  }
 }
 
 impl App {
@@ -46,8 +73,8 @@ impl App {
   fn process_exist(&self) -> bool {
     self.process_list.len() != 0
   }
-  pub fn create_process(&mut self, name: String) {
-    self.process_list.push(create_process(&name));
+  pub fn create_process(&mut self, name: &String) {
+    self.process_list.push(create_process(name));
   }
   // edit filter
   pub fn push_current_filter(&mut self, c: char) {

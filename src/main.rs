@@ -40,14 +40,27 @@ fn main() -> Result<(), Box<dyn Error>> {
           }
         } else {
           // edit or move focus
-          match key.code {
-            // edit filter
-            KeyCode::Char(c) => app.push_current_filter(c),
-            KeyCode::Backspace => app.pop_current_filter(),
-            // move focus
-            KeyCode::Tab => app.focus_next(),
-            KeyCode::BackTab => app.focus_prev(),
-            _ => (),
+          match app.current_status {
+            AppStatus::Monitor => match key.code {
+              // edit filter
+              KeyCode::Char(c) => app.push_current_filter(c),
+              KeyCode::Backspace => app.pop_current_filter(),
+              // move focus
+              KeyCode::Tab => app.focus_next(),
+              KeyCode::BackTab => app.focus_prev(),
+              _ => (),
+            },
+            AppStatus::FileList => match key.code {
+              KeyCode::Up => app.file_list.prev(),
+              KeyCode::Down => app.file_list.next(),
+              KeyCode::Enter => {
+                if let Some(name) = app.file_list.selected_file_name() {
+                  app.create_process(&format!("script/{}", name));
+                  app.current_status = AppStatus::Monitor;
+                }
+              }
+              _ => (),
+            },
           }
         }
       }
