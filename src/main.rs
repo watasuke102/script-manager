@@ -39,6 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
           match key.code {
             KeyCode::Char('q') => break,
             KeyCode::Char('w') => break,
+            KeyCode::Char('x') => app.kill_current_process(),
             KeyCode::Char('u') => app.clear_current_filter(),
             KeyCode::Char('a') => app.open_file_list(),
             _ => (),

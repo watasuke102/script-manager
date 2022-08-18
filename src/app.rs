@@ -76,6 +76,18 @@ impl App {
   pub fn create_process(&mut self, name: &String) {
     self.process_list.push(create_process(name));
   }
+  pub fn kill_current_process(&mut self) {
+    if !self.process_exist() {
+      return;
+    }
+    self.process_list[self.focused_index].kill();
+    self.process_list.remove(self.focused_index);
+    if self.process_exist() {
+      self.focus_prev();
+    } else {
+      self.focused_index = 0;
+    }
+  }
   // edit filter
   pub fn push_current_filter(&mut self, c: char) {
     if self.process_exist() {
