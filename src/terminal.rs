@@ -1,12 +1,32 @@
 use tui::{
   backend::Backend,
-  layout::{Constraint, Direction, Layout},
+  layout::{Constraint, Direction, Layout, Rect},
   text::{Span, Spans, Text},
-  widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+  widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
   Frame,
 };
 
 use crate::{app::FileList, App};
+
+fn popup(r: Rect, margin_x: u16, margin_y: u16) -> Rect {
+  Layout::default()
+    .direction(Direction::Horizontal)
+    .constraints([
+      Constraint::Percentage(margin_x),
+      Constraint::Min(1),
+      Constraint::Percentage(margin_x),
+    ])
+    .split(
+      Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+          Constraint::Percentage(margin_y + 2),
+          Constraint::Min(1),
+          Constraint::Percentage(margin_y),
+        ])
+        .split(r)[1],
+    )[1]
+}
 
 pub fn draw_process_log<B: Backend>(f: &mut Frame<B>, app: &mut App) {
   if app.process_list.len() == 0 {
@@ -81,18 +101,6 @@ pub fn draw_file_list<B: Backend>(f: &mut Frame<B>, file_list: &mut FileList) {
   }
   let dir_list = file_list.names.as_ref().unwrap();
 
-  let chunks = Layout::default()
-    .direction(Direction::Horizontal)
-    .constraints(
-      [
-        Constraint::Percentage(5),
-        Constraint::Percentage(90),
-        Constraint::Percentage(5),
-      ]
-      .as_ref(),
-    )
-    .split(f.size());
-
   let list: Vec<ListItem> = dir_list
     .iter()
     .map(|e| ListItem::new(Spans::from(String::from(e))))
@@ -101,5 +109,8 @@ pub fn draw_file_list<B: Backend>(f: &mut Frame<B>, file_list: &mut FileList) {
   let block = List::new(list)
     .block(Block::default().borders(Borders::ALL))
     .highlight_symbol("> ");
-  f.render_stateful_widget(block, chunks[1], &mut file_list.state);
+
+  let area = popup(f.size(), 12, 12);
+  f.render_widget(Clear, area);
+  f.render_stateful_widget(block, area, &mut file_list.state);
 }

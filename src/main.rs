@@ -22,9 +22,12 @@ fn main() -> Result<(), Box<dyn Error>> {
   // main loop
   let mut app = App::new();
   loop {
-    terminal.draw(|f| match app.current_status {
-      AppStatus::Monitor => draw_process_log(f, &mut app),
-      AppStatus::FileList => draw_file_list(f, &mut app.file_list),
+    terminal.draw(|f| {
+      draw_process_log(f, &mut app);
+      match app.current_status {
+        AppStatus::FileList => draw_file_list(f, &mut app.file_list),
+        _ => (),
+      }
     })?;
 
     if poll(Duration::from_millis(100))? {
