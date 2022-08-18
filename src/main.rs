@@ -4,6 +4,7 @@ use crossterm::{
   execute,
   terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use dotenv::dotenv;
 use std::{error::Error, io, time::Duration};
 use tui::{backend::CrosstermBackend, Terminal};
 
@@ -13,6 +14,7 @@ use terminal::{draw_file_list, draw_process_log};
 mod app;
 
 fn main() -> Result<(), Box<dyn Error>> {
+  dotenv().ok();
   enable_raw_mode()?;
   let mut stdout = io::stdout();
   execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
