@@ -1,4 +1,4 @@
-use app::App;
+use app::{App, AppStatus};
 use crossterm::{
   event::{self, poll, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
   execute,
@@ -9,7 +9,7 @@ use tui::{backend::CrosstermBackend, Terminal};
 
 mod process;
 mod terminal;
-use terminal::draw_process_log;
+use terminal::{draw_file_list, draw_process_log};
 mod app;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -22,7 +22,10 @@ fn main() -> Result<(), Box<dyn Error>> {
   // main loop
   let mut app = App::new();
   loop {
-    terminal.draw(|f| draw_process_log(f, &mut app))?;
+    terminal.draw(|f| match app.current_status {
+      AppStatus::Monitor => draw_process_log(f, &mut app),
+      AppStatus::FileList => draw_file_list(f, &mut app.file_list),
+    })?;
 
     if poll(Duration::from_millis(100))? {
       if let Event::Key(key) = event::read()? {
@@ -32,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             KeyCode::Char('q') => break,
             KeyCode::Char('w') => break,
             KeyCode::Char('u') => app.clear_current_filter(),
-            KeyCode::Char('a') => app.create_process(),
+            KeyCode::Char('a') => app.open_file_list(),
             _ => (),
           }
         } else {

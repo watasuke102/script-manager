@@ -2,11 +2,11 @@ use tui::{
   backend::Backend,
   layout::{Constraint, Direction, Layout},
   text::{Span, Spans, Text},
-  widgets::{Block, Borders, Paragraph, Wrap},
+  widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
   Frame,
 };
 
-use crate::App;
+use crate::{app::FileList, App};
 
 pub fn draw_process_log<B: Backend>(f: &mut Frame<B>, app: &mut App) {
   if app.process_list.len() == 0 {
@@ -66,4 +66,40 @@ pub fn draw_process_log<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     chunks[app.focused_index].x + (app.process_list[app.focused_index].filter.len() as u16) + 1,
     chunks[app.focused_index].y + 2,
   );
+}
+
+pub fn draw_file_list<B: Backend>(f: &mut Frame<B>, file_list: &mut FileList) {
+  if let None = file_list.names {
+    let chunk = Layout::default()
+      .constraints([Constraint::Percentage(100)])
+      .split(f.size());
+    let block = Paragraph::new(Text::from(Spans::from(String::from(
+      "Cannot open 'script' dir",
+    ))));
+    f.render_widget(block, chunk[0]);
+    return;
+  }
+  let dir_list = file_list.names.as_ref().unwrap();
+
+  let chunks = Layout::default()
+    .direction(Direction::Horizontal)
+    .constraints(
+      [
+        Constraint::Percentage(5),
+        Constraint::Percentage(90),
+        Constraint::Percentage(5),
+      ]
+      .as_ref(),
+    )
+    .split(f.size());
+
+  let list: Vec<ListItem> = dir_list
+    .iter()
+    .map(|e| ListItem::new(Spans::from(String::from(e))))
+    .collect();
+
+  let block = List::new(list)
+    .block(Block::default().borders(Borders::ALL))
+    .highlight_symbol("> ");
+  f.render_stateful_widget(block, chunks[1], &mut file_list.state);
 }
