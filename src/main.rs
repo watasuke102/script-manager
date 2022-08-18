@@ -54,6 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
               _ => (),
             },
             AppStatus::FileList => match key.code {
+              KeyCode::Char('q') => app.current_status = AppStatus::Monitor,
               KeyCode::Up => app.file_list.prev(),
               KeyCode::Down => app.file_list.next(),
               KeyCode::Enter => {
