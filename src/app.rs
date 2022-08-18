@@ -110,12 +110,12 @@ impl App {
 
   pub fn open_file_list(&mut self) {
     self.file_list.names = if let Ok(list) = fs::read_dir("script") {
-      Some(
-        list
-          .into_iter()
-          .map(|entry| entry.unwrap().file_name().into_string().unwrap())
-          .collect(),
-      )
+      let mut list = list
+        .into_iter()
+        .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+        .collect::<Vec<String>>();
+      list.sort();
+      Some(list)
     } else {
       None
     };
